@@ -29,10 +29,10 @@ session = Session()#сесія для взаємодії з бд
 
 while True:
         print("оберіть опцію")
-        print("1 -відображення")
-        print("2-з одного міста")
-        print("3-з однієї країни")
-        print("4-вихід")
+        print("1 - відображення")
+        print("2 - фільтр за містом")
+        print("3 - комплексний фільтр,за країною та містом ")
+        print("4 - вихід")
         option = input("введіьт номер опції")
         if option =="1":
             result = session.query(Person).all()
@@ -40,15 +40,24 @@ while True:
             city_name = input("введіть назву міста")
             result = session.query(Person).filter_by(city=city_name).all()
         elif option == "3":
-            country_name = input("введіть назву країни")
-            result = session.query(Person).filter_by(country=country_name).all()
+            city_name = input("введіть назву міста").strip()
+            country_name = input("введіть назву країни").strip()
+            filters = []
+            if city_name:
+                filters.append(Person.city == city_name)
+            if country_name:
+                filters.append(Person.country == country_name)
+
+            if filters:
+                result = session.query(Person).filter(and_(*filters)).all()
         elif option == "4":
+            print("завершення роботи з БД")
             break
 
         if result:
             print("Peзультат")
             for row in result:
-                print(f"{row.first_name},{row.last_name}")
+                print(f"{row.first_name} {row.last_name} | Місто: {row.city} | Країна: {row.country} | Дата народження: {row.birth_date}")
         else:
             print("Результат відсутній")
 session.close()
